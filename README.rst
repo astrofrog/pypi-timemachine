@@ -4,6 +4,9 @@ A PyPI time machine
 Do you wish you could just install packages with pip as if you were at
 some fixed date in the past? If so, the PyPI time machine is for you!
 
+**Disclaimer:** this is alpha-quality software - for now it is a quick hack,
+but I'd love to make this more robust/usable with your help!
+
 Installing
 ~~~~~~~~~~
 
