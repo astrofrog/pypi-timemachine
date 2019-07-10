@@ -23,7 +23,10 @@ PACKAGE_HTML = """
 
 
 def parse_iso(dt):
-    return datetime.strptime(dt, '%Y-%m-%dT%H:%M:%S')
+    try:
+        return datetime.strptime(dt, '%Y-%m-%d')
+    except:
+        return datetime.strptime(dt, '%Y-%m-%dT%H:%M:%S')
 
 
 @click.command()

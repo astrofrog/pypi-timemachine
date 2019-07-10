@@ -11,7 +11,11 @@ in the past? If so, the PyPI time machine is for you!
 
 Once installed, you can run a PyPI server with:
 
-    pypi-timemachine 2014-02-03T00:00:00
+    pypi-timemachine 2014-02-03
+
+or if you need to specify a precise time (in UTC):
+
+    pypi-timemachine 2014-02-03T12:33:02
 
 This will start up a Flask app, and will print out a line such as:
 
