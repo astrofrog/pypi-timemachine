@@ -1,9 +1,11 @@
 ## A PyPI time machine
 
-Do you wish you could just install packages as if you were at some fixed date
-in the past? If so, the PyPI time machine is for you!
+Do you wish you could just install packages with pip as if you were at some
+fixed date in the past? If so, the PyPI time machine is for you!
 
 ### Installing
+
+To install:
 
     pip install pypi-timemachine
 
