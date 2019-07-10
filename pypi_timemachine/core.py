@@ -1,3 +1,4 @@
+import socket
 from datetime import datetime
 
 import click
@@ -55,4 +56,10 @@ def main(cutoff_date):
 
         return PACKAGE_HTML.format(package=package, links=release_links)
 
-    app.run()
+    host = socket.gethostbyname('localhost')
+    sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock.bind(('localhost', 0))
+    port = sock.getsockname()[1]
+    sock.close()
+
+    app.run(host=host, port=port)
