@@ -31,10 +31,20 @@ This will start up a Flask app, and will print out a line such as::
 
 You can then call pip with::
 
-   pip install --index-url http://127.0.0.1:5000/ astropy
+   pip install --index-url http://127.0.0.1:5000/simple/ astropy
 
 and this will then install the requested packages and all dependencies,
 ignoring any releases after the cutoff date specified above.
+
+How it works
+~~~~~~~~~~~~
+
+`pypi-timemachine` builds upon the simple-repository stack, and uses the
+standards based PEP-503 repository. In order to filter by time, the upstream
+repository PyPI must provide PEP-700 metadata (which PyPI does).
+The results are filtered by pypi-timemachine, and then served as HTML or JSON
+via the standard PEP-503 interface.
+
 
 Caveats/warnings
 ~~~~~~~~~~~~~~~~
