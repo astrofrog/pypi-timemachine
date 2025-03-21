@@ -28,14 +28,45 @@ def parse_iso(dt) -> datetime:
     try:
         return datetime.strptime(dt, '%Y-%m-%d')
     except:
+        if dt.endswith('Z'):
+            dt = dt[:-1]
         return datetime.strptime(dt, '%Y-%m-%dT%H:%M:%S')
 
 
-def create_app(repo: SimpleRepository) -> fastapi.FastAPI:
+def create_app(repo: SimpleRepository, cutoff: datetime) -> fastapi.FastAPI:
     @asynccontextmanager
     async def lifespan(app: fastapi.FastAPI) -> typing.AsyncIterator[None]:
+
+        def repo_factory(cutoff_date: str) -> SimpleRepository:
+            try:
+                CUTOFF = parse_iso(cutoff_date)
+            except Exception as e:
+                raise fastapi.HTTPException(status_code=400, detail="Date string does not conform to %Y-%m-%d or %Y-%m-%dT%H:%M:%SZ")
+
+            return DateFilteredReleases(
+                repo,
+                cutoff_date=CUTOFF,
+            )
+
         async with httpx.AsyncClient() as http_client:
-            app.include_router(simple.build_router(repo, http_client), prefix="")
+            app.include_router(simple.build_router(
+                repo,
+                http_client=http_client,
+                prefix="/snapshot/{cutoff_date}/",
+                repo_factory=repo_factory,
+            ))
+
+            @app.get('/')
+            @app.get('/{project_name}/')
+            def redirect_to_simple(request: fastapi.Request):
+                # Allow accessing without specifying the snapshot date, but have this redirect.
+                # We don't make it permanent, because we may restart the server with a new "default cutoff date".
+                # This also gives us backwards compatibility for when we only supported a single cut-off date.
+                return fastapi.responses.RedirectResponse(
+                    f'/snapshot/{cutoff.strftime("%Y-%m-%dT%H:%M:%SZ")}{request.url.path}',
+                    status_code=302,
+                )
+
             yield
 
     app = fastapi.FastAPI(
@@ -76,13 +107,11 @@ class DateFilteredReleases(RepositoryContainer):
 
         return self._exclude_recent_distributions(
             project_page=project_page,
-            now=datetime.now(),
         )
 
     def _exclude_recent_distributions(
         self,
         project_page: model.ProjectDetail,
-        now: datetime,
     ) -> model.ProjectDetail:
         filtered_files = tuple(
             file for file in project_page.files
@@ -100,12 +129,12 @@ def main(cutoff_date, port, quiet):
 
     CUTOFF = parse_iso(cutoff_date)
 
-    repo = DateFilteredReleases(
-        HttpRepository(MAIN_PYPI),
-        cutoff_date=CUTOFF,
-    )
+    repo = HttpRepository(MAIN_PYPI)
 
-    app = create_app(repo)
+    # TODO: Currently all resources get streamed through our server, so an installation of a big wheel
+    #  results in a lot of traffic passing through the timemachine server. The issue for this
+    #  can be found at https://github.com/simple-repository/simple-repository-server/issues/15.
+    app = create_app(repo, CUTOFF)
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     sock.bind(('localhost', 0))
