@@ -1,6 +1,11 @@
-from pkg_resources import get_distribution, DistributionNotFound
+import sys
+
+if sys.version_info < (3, 8):
+    from importlib_metadata import PackageNotFoundError, version
+else:
+    from importlib.metadata import PackageNotFoundError, version
 
 try:
-    __version__ = get_distribution(__name__).version
-except DistributionNotFound:
+    __version__ = version(__name__)
+except PackageNotFoundError:
     pass
