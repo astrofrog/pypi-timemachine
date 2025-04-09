@@ -25,7 +25,7 @@ numpy==2.1.3
 packaging==24.2
 pyerfa==2.0.1.5
 PyYAML==6.0.2
-""".strip()
+"""
 
 
 def test_basic(tmpdir):
@@ -48,4 +48,4 @@ def test_basic(tmpdir):
             ]
         )
     freeze_output = subprocess.check_output([python_executable, "-m", "pip", "freeze"])
-    assert freeze_output.decode("utf-8").strip() == BASIC_EXPECTED
+    assert freeze_output.decode("utf-8").strip().splitlines() == BASIC_EXPECTED.strip().splitlines()
