@@ -32,4 +32,5 @@ def test_basic(tmpdir):
     with timemachine('2023-02-03T22:12:33'):
         subprocess.check_output([os.path.join(tmpdir, 'bin', 'python'), '-m', 'pip', 'install', '-i', f'http://localhost:8100', 'astropy'])
     freeze_output = subprocess.check_output([os.path.join(tmpdir, 'bin', 'python'), '-m', 'pip', 'freeze'])
+    print(freeze_output.decode('utf-8'))
     assert freeze_output == BASIC_EXPECTED
