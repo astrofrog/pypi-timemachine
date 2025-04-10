@@ -1,0 +1,37 @@
+[build-system]
+requires = ["setuptools", "wheel", "setuptools_scm>=8"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "pypi-timemachine"
+dynamic = [
+  "version",  # The version is taken directly from the repository, using setuptools-scm.
+]
+description = "Run a PyPI server from the past"
+readme = "README.rst"
+authors = [
+  { name = "Thomas Robitaille", email = "thomas.robitaille@gmail.com" },
+]
+
+dependencies = [
+  "click",
+  "fastapi",
+  "httpx",
+  "importlib-metadata; python_version < '3.8'",
+  "simple-repository>=0.8.2",
+  "simple-repository-server>=0.8.1",
+]
+
+[project.optional-dependencies]
+test = [
+  "pytest",
+]
+
+[tool.setuptools.packages.find]
+include = ["pypi_timemachine"]
+
+[project.scripts]
+pypi-timemachine = "pypi_timemachine.core:main"
+
+[project.urls]
+Homepage = "https://github.com/astrofrog/pypi-timemachine"
