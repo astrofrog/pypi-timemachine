@@ -125,11 +125,12 @@ class DateFilteredReleases(RepositoryContainer):
 @click.argument('cutoff_date')
 @click.option('--port', default=None)
 @click.option('--quiet', default=False, is_flag=True)
-def main(cutoff_date, port, quiet):
+@click.option('--index-url', default=MAIN_PYPI)
+def main(cutoff_date: str | None, port: str | None, quiet: bool, index_url: str):
 
     CUTOFF = parse_iso(cutoff_date)
 
-    repo = HttpRepository(MAIN_PYPI)
+    repo = HttpRepository(index_url)
 
     # TODO: Currently all resources get streamed through our server, so an installation of a big wheel
     #  results in a lot of traffic passing through the timemachine server. The issue for this

@@ -36,6 +36,12 @@ You can then call pip with::
 and this will then install the requested packages and all dependencies,
 ignoring any releases after the cutoff date specified above.
 
+It is possible to run the time machine against a custom Python package
+repository, provided it includes date metadata as defined in PEP-700,
+specifically the `upload-time` field::
+
+  pypi-timemachine 2021-02-03 --index-url https://my-custom-repo/simple/
+
 How it works
 ~~~~~~~~~~~~
 
