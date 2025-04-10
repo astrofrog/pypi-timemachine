@@ -13,11 +13,11 @@ authors = [
   { name = "Thomas Robitaille", email = "thomas.robitaille@gmail.com" },
 ]
 
+requires-python = ">=3.11"
 dependencies = [
   "click",
   "fastapi",
   "httpx",
-  "importlib-metadata; python_version < '3.8'",
   "simple-repository>=0.8.2",
   "simple-repository-server>=0.8.1",
 ]
