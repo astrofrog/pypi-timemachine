@@ -37,6 +37,22 @@ You can then configure pip to use the time machine, for example::
 and this will then install the requested packages and all dependencies,
 ignoring any releases after the cutoff date specified above.
 
+For convenience, it is also possible to specify the cutoff date as part of the
+repository URL, using the pattern `http://{host}/snapshot/{cutoff_date}/`.
+Cutoff date can be either an RFC 3339 timestamp (e.g. `2006-12-02T02:07:43Z`)
+or a simple date (e.g., 2006-12-02). For example::
+
+   pip install --index-url http://127.0.0.1:5000/snapshot/2024-12-03 astropy
+
+Would install the requested packages and all dependencies from the date given in
+the index URL.
+
+It is possible to run the time machine against a custom Python package
+repository, provided it includes date metadata as defined in PEP-700,
+specifically the `upload-time` field::
+
+  pypi-timemachine 2021-02-03 --index-url https://my-custom-repo/simple/
+
 How it works
 ~~~~~~~~~~~~
 
