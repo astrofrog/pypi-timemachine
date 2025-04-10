@@ -1,3 +1,4 @@
+import logging
 from contextlib import asynccontextmanager
 import dataclasses
 from datetime import datetime
@@ -143,6 +144,7 @@ def main(cutoff_date, port, quiet):
     sock.close()
 
     if not quiet:
-        print(f'Starting pypi-timemachine server at http://localhost:{port}')
+        print(f'pypi-timemachine server listening at http://localhost:{port}  (ctrl+c to exit)')
+        print(f'  Hint: Setting the environment variable PIP_INDEX_URL="http://localhost:{port}" is one way to configure pip to use this timemachine')
 
-    uvicorn.run(app=app, port=int(port))
+    uvicorn.run(app=app, port=int(port), log_level=logging.WARN)

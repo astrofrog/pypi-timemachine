@@ -27,9 +27,10 @@ or if you need to specify a precise time (in UTC)::
 
 This will start up a webapp running uvicorn, and will print out a line such as::
 
-   Starting pypi-timemachine server at http://127.0.0.1:5000/
+    pypi-timemachine server listening at http://localhost:5000  (Press CTRL+C to quit)
+      Hint: Setting the environment variable PIP_INDEX_URL="http://localhost:5000" is one way to configure pip to use this timemachine
 
-You can then call pip with::
+You can then configure pip to use the time machine, for example::
 
    pip install --index-url http://127.0.0.1:5000/ astropy
 
