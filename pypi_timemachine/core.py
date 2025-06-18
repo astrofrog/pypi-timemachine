@@ -19,30 +19,34 @@ import uvicorn
 if sys.version_info >= (3, 12):
     from typing import override
 else:
-    override = lambda fn: fn
+
+    def override(fn):
+        return fn
 
 
-MAIN_PYPI = 'https://pypi.org/simple/'
+MAIN_PYPI = "https://pypi.org/simple/"
 
 
 def parse_iso(dt) -> datetime:
     try:
-        return datetime.strptime(dt, '%Y-%m-%d')
-    except:
-        if dt.endswith('Z'):
+        return datetime.strptime(dt, "%Y-%m-%d")
+    except ValueError:
+        if dt.endswith("Z"):
             dt = dt[:-1]
-        return datetime.strptime(dt, '%Y-%m-%dT%H:%M:%S')
+        return datetime.strptime(dt, "%Y-%m-%dT%H:%M:%S")
 
 
 def create_app(repo: SimpleRepository, cutoff: datetime) -> fastapi.FastAPI:
     @asynccontextmanager
     async def lifespan(app: fastapi.FastAPI) -> typing.AsyncIterator[None]:
-
         def repo_factory(cutoff_date: str) -> SimpleRepository:
             try:
                 CUTOFF = parse_iso(cutoff_date)
-            except Exception as e:
-                raise fastapi.HTTPException(status_code=400, detail="Date string does not conform to %Y-%m-%d or %Y-%m-%dT%H:%M:%SZ")
+            except Exception:
+                raise fastapi.HTTPException(
+                    status_code=400,
+                    detail="Date string does not conform to %Y-%m-%d or %Y-%m-%dT%H:%M:%SZ",
+                )
 
             return DateFilteredReleases(
                 repo,
@@ -50,21 +54,23 @@ def create_app(repo: SimpleRepository, cutoff: datetime) -> fastapi.FastAPI:
             )
 
         async with httpx.AsyncClient() as http_client:
-            app.include_router(simple.build_router(
-                repo,
-                http_client=http_client,
-                prefix="/snapshot/{cutoff_date}/",
-                repo_factory=repo_factory,
-            ))
+            app.include_router(
+                simple.build_router(
+                    repo,
+                    http_client=http_client,
+                    prefix="/snapshot/{cutoff_date}/",
+                    repo_factory=repo_factory,
+                )
+            )
 
-            @app.get('/')
-            @app.get('/{project_name}/')
+            @app.get("/")
+            @app.get("/{project_name}/")
             def redirect_to_simple(request: fastapi.Request):
                 # Allow accessing without specifying the snapshot date, but have this redirect.
                 # We don't make it permanent, because we may restart the server with a new "default cutoff date".
                 # This also gives us backwards compatibility for when we only supported a single cut-off date.
                 return fastapi.responses.RedirectResponse(
-                    f'/snapshot/{cutoff.strftime("%Y-%m-%dT%H:%M:%SZ")}{request.url.path}',
+                    f"/snapshot/{cutoff.strftime('%Y-%m-%dT%H:%M:%SZ')}{request.url.path}",
                     status_code=302,
                 )
 
@@ -86,6 +92,7 @@ class DateFilteredReleases(RepositoryContainer):
     date according to PEP-700: https://peps.python.org/pep-0700/.
 
     """
+
     def __init__(
         self,
         source: SimpleRepository,
@@ -115,20 +122,19 @@ class DateFilteredReleases(RepositoryContainer):
         project_page: model.ProjectDetail,
     ) -> model.ProjectDetail:
         filtered_files = tuple(
-            file for file in project_page.files
-            if not file.upload_time or
-            (file.upload_time <= self._cutoff_date)
+            file
+            for file in project_page.files
+            if not file.upload_time or (file.upload_time <= self._cutoff_date)
         )
         return dataclasses.replace(project_page, files=filtered_files)
 
 
 @click.command()
-@click.argument('cutoff_date')
-@click.option('--port', default=None)
-@click.option('--quiet', default=False, is_flag=True)
-@click.option('--index-url', default=MAIN_PYPI)
+@click.argument("cutoff_date")
+@click.option("--port", default=None)
+@click.option("--quiet", default=False, is_flag=True)
+@click.option("--index-url", default=MAIN_PYPI)
 def main(cutoff_date: str | None, port: str | None, quiet: bool, index_url: str):
-
     CUTOFF = parse_iso(cutoff_date)
 
     repo = HttpRepository(index_url)
@@ -139,13 +145,17 @@ def main(cutoff_date: str | None, port: str | None, quiet: bool, index_url: str)
     app = create_app(repo, CUTOFF)
 
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    sock.bind(('localhost', 0))
+    sock.bind(("localhost", 0))
     if port is None:
         port = sock.getsockname()[1]
     sock.close()
 
     if not quiet:
-        print(f'pypi-timemachine server listening at http://localhost:{port}  (ctrl+c to exit)')
-        print(f'  Hint: Setting the environment variable PIP_INDEX_URL="http://localhost:{port}" is one way to configure pip to use this timemachine')
+        print(
+            f"pypi-timemachine server listening at http://localhost:{port}  (ctrl+c to exit)"
+        )
+        print(
+            f'  Hint: Setting the environment variable PIP_INDEX_URL="http://localhost:{port}" is one way to configure pip to use this timemachine'
+        )
 
     uvicorn.run(app=app, port=int(port), log_level=logging.WARN)
