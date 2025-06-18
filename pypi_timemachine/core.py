@@ -19,7 +19,9 @@ import uvicorn
 if sys.version_info >= (3, 12):
     from typing import override
 else:
-    override = lambda fn: fn
+
+    def override(fn):
+        return fn
 
 
 MAIN_PYPI = "https://pypi.org/simple/"
@@ -28,7 +30,7 @@ MAIN_PYPI = "https://pypi.org/simple/"
 def parse_iso(dt) -> datetime:
     try:
         return datetime.strptime(dt, "%Y-%m-%d")
-    except:
+    except ValueError:
         if dt.endswith("Z"):
             dt = dt[:-1]
         return datetime.strptime(dt, "%Y-%m-%dT%H:%M:%S")
