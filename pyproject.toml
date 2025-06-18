@@ -27,8 +27,10 @@ test = [
   "pytest",
 ]
 
-[tool.setuptools.packages.find]
-include = ["pypi_timemachine"]
+[tool.setuptools.packages]
+find = {namespaces = false}
+
+[tool.setuptools_scm]
 
 [project.scripts]
 pypi-timemachine = "pypi_timemachine.core:main"
