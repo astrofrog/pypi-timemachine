@@ -5,10 +5,12 @@ import contextlib
 import subprocess
 import typing
 
+
 @contextlib.contextmanager
 def timemachine(date: str, port: int = 8100, extra_args: typing.Iterable[str] = ()):
-
-    process = subprocess.Popen(["pypi-timemachine", date, "--port", str(port)] + list(extra_args))
+    process = subprocess.Popen(
+        ["pypi-timemachine", date, "--port", str(port)] + list(extra_args)
+    )
 
     try:
         time.sleep(2)
@@ -16,6 +18,7 @@ def timemachine(date: str, port: int = 8100, extra_args: typing.Iterable[str] = 
     finally:
         process.terminate()
         process.wait()
+
 
 BASIC_DATE = "2024-12-03T22:12:33Z"
 BASIC_EXPECTED = """
@@ -43,12 +46,15 @@ def test_basic(tmpdir):
                 "pip",
                 "install",
                 "-i",
-                f"http://localhost:8100",
+                "http://localhost:8100",
                 "astropy",
             ]
         )
     freeze_output = subprocess.check_output([python_executable, "-m", "pip", "freeze"])
-    assert freeze_output.decode("utf-8").strip().splitlines() == BASIC_EXPECTED.strip().splitlines()
+    assert (
+        freeze_output.decode("utf-8").strip().splitlines()
+        == BASIC_EXPECTED.strip().splitlines()
+    )
 
 
 def test_custom_index_url(tmpdir):
@@ -59,7 +65,11 @@ def test_custom_index_url(tmpdir):
         "python",
     )
     with timemachine("2900-01-01"):
-        with timemachine("2900-01-01", port=8101, extra_args=['--index-url', f"http://localhost:8100/snapshot/{BASIC_DATE}"]):
+        with timemachine(
+            "2900-01-01",
+            port=8101,
+            extra_args=["--index-url", f"http://localhost:8100/snapshot/{BASIC_DATE}"],
+        ):
             subprocess.check_output(
                 [
                     python_executable,
@@ -67,9 +77,12 @@ def test_custom_index_url(tmpdir):
                     "pip",
                     "install",
                     "-i",
-                    f"http://localhost:8101",
+                    "http://localhost:8101",
                     "astropy",
                 ]
             )
     freeze_output = subprocess.check_output([python_executable, "-m", "pip", "freeze"])
-    assert freeze_output.decode("utf-8").strip().splitlines() == BASIC_EXPECTED.strip().splitlines()
+    assert (
+        freeze_output.decode("utf-8").strip().splitlines()
+        == BASIC_EXPECTED.strip().splitlines()
+    )
