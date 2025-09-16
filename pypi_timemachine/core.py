@@ -106,7 +106,7 @@ class DateFilteredReleases(RepositoryContainer):
         self,
         project_name: str,
         *,
-        request_context: model.RequestContext = model.RequestContext.DEFAULT,
+        request_context: model.RequestContext | None = None,
     ) -> model.ProjectDetail:
         project_page = await super().get_project_page(
             project_name,
