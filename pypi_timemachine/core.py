@@ -145,7 +145,7 @@ def main(cutoff_date: str | None, port: str | None, quiet: bool, index_url: str)
     sock.close()
 
     if not quiet:
-        print(f'pypi-timemachine server listening at http://localhost:{port}  (ctrl+c to exit)')
-        print(f'  Hint: Setting the environment variable PIP_INDEX_URL="http://localhost:{port}" is one way to configure pip to use this timemachine')
+        print(f'pypi-timemachine server listening at http://localhost:{port}  (ctrl+c to exit)', flush=True)
+        print(f'  Hint: Setting the environment variable PIP_INDEX_URL="http://localhost:{port}" is one way to configure pip to use this timemachine', flush=True)
 
     uvicorn.run(app=app, port=int(port), log_level=logging.WARN)
