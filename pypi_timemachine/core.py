@@ -24,6 +24,8 @@ else:
 
 MAIN_PYPI = 'https://pypi.org/simple/'
 
+# ignore cutoff for the following packages
+CUTOFF_IGNORE_PACKAGES = {"atomicwrites"}
 
 def parse_iso(dt) -> datetime:
     try:
@@ -114,6 +116,10 @@ class DateFilteredReleases(RepositoryContainer):
         self,
         project_page: model.ProjectDetail,
     ) -> model.ProjectDetail:
+        # skip filtering if the project name is in the ignore list
+        if project_page.name in CUTOFF_IGNORE_PACKAGES:
+            return project_page
+
         filtered_files = tuple(
             file for file in project_page.files
             if not file.upload_time or
